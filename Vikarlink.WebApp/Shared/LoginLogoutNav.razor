@@ -1,0 +1,32 @@
+﻿@using Blazored.LocalStorage;
+@inject NavigationManager _naviM
+@inject ILocalStorageService _localStorage
+@inject AuthenticationStateProvider _authStateProvider
+
+<AuthorizeView>
+    <Authorized>
+        <MudIconButton @onclick="(() => LogOut())" Icon="@Icons.Filled.Logout" Size="Size.Large" Color="Color.Error" />
+    </Authorized>
+    <NotAuthorized>
+        <MudIconButton @onclick="(() => Login())" Icon="@Icons.Filled.Login" Size="Size.Large" Color="Color.Success" />
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+
+    void Login()
+    {
+        _naviM.NavigateTo("/");
+    }
+
+    async Task LogOut()
+    {
+        await _localStorage.RemoveItemAsync("token");
+        await _authStateProvider.GetAuthenticationStateAsync();
+        _naviM.NavigateTo("/");
+    }
+
+
+}

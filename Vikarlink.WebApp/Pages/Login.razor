@@ -1,0 +1,109 @@
+﻿@page "/"
+@using Blazored.LocalStorage
+@using Vikarlink.Shared
+@using Vikarlink.WebApp.StateProvider
+@inject HttpClient _client
+@inject NavigationManager _naviM
+@inject ILocalStorageService _localStorage
+@inject AuthenticationStateProvider _authenticationStateProvider
+
+
+<EditForm Model="user" OnSubmit="HandleLogin">
+
+    <section class="vh-100" style="background-color: #6eb0bf;">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-xl-10">
+                    <div class="card" style="border-radius: 1rem;">
+                        <div class="row g-0">
+                            <div class="col-md-6 col-lg-5 d-none d-md-block">
+                                <img src="https://images.hindustantimes.com/rf/image_size_640x362/HT/p2/2015/12/01/Pictures/_c34102da-9849-11e5-b4f4-1b7a09ed2cea.jpg"
+                                     width="450" height="600" style="border-radius: 1rem 0 0 1rem;" />
+                            </div>
+                            <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                                <div class="card-body p-4 p-lg-5 text-black">
+                                    <AuthorizeView Context="authContent">
+                                        <p class=" text-muted"> Du er logget ind som: <b>@authContent.User.Identity.Name</b></p>
+                                    </AuthorizeView>
+                                    <div class="d-flex align-items-center mb-3 pb-1">
+                                        <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
+                                        <span><b>VikarLink</b></span>
+                                    </div>
+                                    <h5 class="fw-normal mb-3 pb-3" style="letter-spacing: 1px;">Velkommen til VikarLink</h5>
+                                    <div class="form-outline mb-4">
+                                        <MudTextField Label="Username" Variant="Variant.Outlined" @bind-Value="user.Username" />
+                                    </div>
+                                    <div class="form-outline mb-4">
+                                        <MudTextField Label="Password" Variant="Variant.Outlined" @bind-Value="user.Password" InputType="InputType.Password" Adornment="Adornment.End" AdornmentIcon="@OnOffIcon" OnAdornmentClick="ShowPassword" AdornmentAriaLabel="Show Password" />
+                                    </div>
+                                    <span class="col-12">@LoginMesssage</span>
+
+                                    <div class="pt-1 mb-4">
+                                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Text" EndIcon="@Icons.Material.Filled.Send" Color="Color.Dark">Log ind</MudButton>
+                                    </div>
+                                    <a class="small text-muted" href="#!">Glemt adgangskode?</a>
+                                    <p class="mb-5 pb-lg-2" style="color: #393f81;">
+                                        Vil du med på holdet?
+                                        <a href="/LedigStillinger" style="color: #393f81;">Ansøg her</a>
+                                    </p>
+                                    <a href="#!" class="small text-muted">Terms of use.</a>
+                                    <br />
+                                    <a href="#!" class=" small text-muted"> Privacy policy</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</EditForm>
+
+@code {
+    LoginRequest user = new LoginRequest();
+    private string LoginMesssage { get; set; } = string.Empty;
+
+    bool isShow;
+    string OnOffIcon = Icons.Material.Filled.VisibilityOff;
+
+    async Task HandleLogin()
+    {
+        var result = await _client.PostAsJsonAsync("/LoginApi", user);
+
+        if (!result.IsSuccessStatusCode)
+        {
+            //LoginMesssage = await result.Content.ReadAsStringAsync();
+            LoginMesssage = "Invalid username or password";
+            Console.WriteLine("FEJL!");
+        }
+        else
+        {
+            //var token = await result.Content.ReadAsStringAsync();
+            //Console.WriteLine(token);
+            //await _localStorage.SetItemAsync("token", token);
+            //await _authenticationStateProvider.GetAuthenticationStateAsync();
+            //NavigationManager.NavigateTo("/");
+
+            var token = await result.Content.ReadAsStringAsync();
+            Console.WriteLine(token);
+            await _localStorage.SetItemAsync("token", token);
+            await _authenticationStateProvider.GetAuthenticationStateAsync();
+            LoginMesssage = "You are now logged in";
+            _naviM.NavigateTo("/startside");
+        }
+    }
+
+    private void ShowPassword()
+    {
+        if (isShow)
+        {
+            isShow = false;
+            OnOffIcon = Icons.Material.Filled.VisibilityOff;
+        }
+        else
+        {
+            isShow = true;
+            OnOffIcon = Icons.Material.Filled.Visibility;
+        }
+    }
+}

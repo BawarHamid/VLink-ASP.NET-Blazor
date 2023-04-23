@@ -1,0 +1,121 @@
+﻿@page "/opdatervikar"
+@page "/opdatervikar/{Id:int}"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVikarService vikarService
+@inject NavigationManager naviM
+@inject MudBlazor.ISnackbar sBar
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VIKAREN|@querydto.ForNavn @querydto.EfterNavn</PageTitle>
+<h4>Opdatering af: @querydto.ForNavn @querydto.EfterNavn</h4>
+
+@if (Id == null)
+{
+    <h3>OpdaterVikar</h3>
+    <div>Loader vikaren</div>
+}
+else
+{
+    <EditForm Model="querydto" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label for="idL">Vikar id</label>
+            <InputNumber id="idI" @bind-Value="querydto.Id" class="form-control" disabled="true"></InputNumber>
+            <ValidationMessage For="@(() => querydto.Id)" />
+        </div>
+        <br />
+        <div>
+            <label for="fornavnL">Fornavn</label>
+            <InputText id="fornavnI" @bind-Value="querydto.ForNavn" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.ForNavn)" />
+        </div>
+        <br />
+        <div>
+            <label for="efternavnL">Efternavn</label>
+            <InputText id="efternavnI" @bind-Value="querydto.EfterNavn" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.EfterNavn)" />
+        </div>
+        <br />
+        <div>
+            <label for="adresseL">Adresse</label>
+            <InputText id="adresseI" @bind-Value="querydto.Adresse" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Adresse)" />
+        </div>
+        <br />
+        <div>
+            <label for="telefonL">Telefon</label>
+            <InputText id="telefonI" @bind-Value="querydto.Telefon" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Telefon)" />
+        </div>
+        <br />
+        <div>
+            <label for="emailL">Email</label>
+            <InputText id="emailI" @bind-Value="querydto.Email" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Email)" />
+        </div>
+        <br />
+        <div>
+            <label for="brugernavnL">Brugernavn</label>
+            <InputText id="brugernavnI" @bind-Value="querydto.Username" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Username)" />
+        </div>
+        <br />
+        <div>
+            <label for="adgangskodeL">Adgangskode</label>
+            <InputText id="adgangskodeI" @bind-Value="querydto.Password" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Password)" />
+        </div>
+        <br />
+        <div>
+            <label for="datoOprettetL">Oprettelsesdato</label>
+            <InputDateTime id="datoOprettetI" @bind-Value="querydto.DatoOprettet" class="form-control" disabled="true"></InputDateTime>
+            <ValidationMessage For="@(() => querydto.DatoOprettet)" />
+        </div>
+        <div>
+            <label for="ansættelsesdatoL">Ansættelsesdato</label>
+            <InputDateTime id="ansættelsesdatoI" @bind-Value="querydto.AnsaettelsesDato" class="form-control" disabled="true"></InputDateTime>
+            <ValidationMessage For="@(() => querydto.AnsaettelsesDato)" />
+        </div>
+        <br />
+        <div class="submit" style="position:absolute">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" Size="Size.Large">@btnText</MudButton>
+        </div>
+        <div class="backTo" style="float: right">
+            <MudIconButton @onclick="(() => ReturnToAll())" Icon="@Icons.Filled.KeyboardReturn" Size="Size.Large" Color="Color.Warning" />
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+    public VikarQueryDto querydto { get; set; } = new VikarQueryDto();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == null)
+        {
+            throw new Exception("Http status 404, Ingen vikarer i databasen med dette Id");
+        }
+        else
+        {
+            querydto = await vikarService.GetVikarAsync((int)Id);
+            btnText = Id == null ? "Der er ingen vikarer" : "Gem Vikar";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        await vikarService.UpdateVikarAsync(querydto.Id, querydto);
+        sBar.Add("Vikaren er nu opdateret ", Severity.Warning);
+        naviM.NavigateTo("/vikarer");
+    }
+
+    private void ReturnToAll()
+    {
+        naviM.NavigateTo("/vikarer");
+    }
+}

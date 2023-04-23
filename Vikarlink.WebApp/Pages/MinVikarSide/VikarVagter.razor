@@ -1,0 +1,87 @@
+﻿@page "/minevagter"
+@using Vikarlink.Shared.Dtos.OutgoingDtos;
+@inject IVagtService vagtService
+@inject IVikarService vikarService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@inject AuthenticationStateProvider authState
+@attribute [Authorize(Roles = "Admin, User")]
+
+<PageTitle>VIKAREN|VIKARVAGTER</PageTitle>
+@if (vikarDto.Id == null)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7" />
+}
+else
+{
+    <div style="vertical-align: top;">
+        <h5>Velkommen tilbage: @vikarDto.ForNavn @vikarDto.EfterNavn</h5>
+        <h6>Her kan du se dine afholdte vagter, og dine kommende vagter:</h6>
+    </div>
+    <br />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Dato oprettet</th>
+                <th>Starttidspunkt</th>
+                <th>Sluttidspunkt</th>
+                <th>Status</th>
+                <th>Vikar nr</th>
+                <th>Klasseværelse nr</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vagter in vagtList)
+            {
+                <tr>
+                    <td>@vagter.Id</td>
+                    <td>@vagter.Dato</td>
+                    <td>@vagter.StartTid</td>
+                    <td>@vagter.SlutTid</td>
+                    <td>@vagter.Status</td>
+                    <td>@vagter.VikarId</td>
+                    <td>@vagter.KlasseVaerelseId</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="backTo" style="position:absolute">
+        <MudButton @onclick="(() => ReturnToProfile())" Variant="Variant.Filled" StartIcon="@Icons.Rounded.PersonPin" Color="Color.Warning" Size="Size.Large">Min Profil</MudButton>
+    </div>
+    <div class="backTo" style="float: right">
+        <MudButton @onclick="(() => ReturnToHome())" Variant="Variant.Filled" StartIcon="@Icons.Filled.Home" Color="Color.Info" Size="Size.Large">Startside</MudButton>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    private IEnumerable<VagtQueryDto> vagtList = new List<VagtQueryDto>();
+    private VikarQueryDto vikarDto { get; set; } = new VikarQueryDto();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var state = await authState.GetAuthenticationStateAsync();
+        Id = int.Parse(state.User.Claims.Where(v => v.Type.Equals("vikarIdentifier")).Select(v => v.Value).FirstOrDefault());
+        vagtList = await vagtService.GetVikarVagterAsync((int)Id);
+        vikarDto = await vikarService.GetVikarAsync((int)Id);
+        sBar.Add("HENTER DINE VAGTER MM...", Severity.Normal);
+        Console.WriteLine(vikarDto.ForNavn);
+    }
+
+    private void ReturnToProfile()
+    {
+        naviM.NavigateTo("/minside");
+    }
+
+    private void ReturnToHome()
+    {
+        naviM.NavigateTo("/startside");
+    }
+
+
+}

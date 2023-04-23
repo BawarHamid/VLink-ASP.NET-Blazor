@@ -1,0 +1,126 @@
+﻿@page "/vikarer"
+@using Microsoft.AspNetCore.Authorization
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVikarService vikarService
+@inject NavigationManager naviM
+@inject MudBlazor.ISnackbar sBar
+@attribute [Authorize(Roles = "Admin")]
+
+@if (vikarList != null)
+{
+    <MudContainer Class="d-flex justify-content-end" MaxWidth="MaxWidth.ExtraLarge">
+        <MudFab @onclick="GoToCreateVikar" StartIcon="@Icons.Filled.PersonAdd" Color="Color.Success" Label="Opret Ny vikar"></MudFab>
+        @*<MudIconButton Icon="@Icons.Filled.PersonAdd" Color="Color.Success" />*@
+    </MudContainer>
+
+    <MudTable Items="@vikarList" Hover="@hover" Filter="new Func<VikarQueryDto,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Vikar oversigt:</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Indtast vikarens informationer her.." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            @*<MudTh>Personalefoto</MudTh>*@
+            <MudTh>Id</MudTh>
+            <MudTh>Fornavn</MudTh>
+            <MudTh>Efternavn</MudTh>
+            <MudTh>Adresse</MudTh>
+            <MudTh>Telefon</MudTh>
+            <MudTh>Email</MudTh>
+            <MudTh>Brugernavn</MudTh>
+            <MudTh>Adgangskode</MudTh>
+            <MudTh>Oprettelsesdato</MudTh>
+            <MudTh>Ansættelsedato</MudTh>
+            <MudTh Style="padding-left:115px">Actions</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            @*<MudCardMedia Image="icon-192.png" Height="100" />*@
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="ForNavn">@context.ForNavn</MudTd>
+            <MudTd DataLabel="EfterNavn">@context.EfterNavn</MudTd>
+            <MudTd DataLabel="Adresse">@context.Adresse</MudTd>
+            <MudTd DataLabel="Telefon">@context.Telefon</MudTd>
+            <MudTd DataLabel="Email">@context.Email</MudTd>
+            <MudTd DataLabel="Brugernavn">@context.Username</MudTd>
+            <MudTd DataLabel="Adgangskode">@context.Password</MudTd>
+            <MudTd DataLabel="Oprettelsesdato">@context.DatoOprettet</MudTd>
+            <MudTd DataLabel="Ansættelsedato">@context.AnsaettelsesDato</MudTd>
+            <MudTd DataLabel="IconPos">
+                <MudIconButton @onclick="(() => GoToDeleteVikar(context.Id))" Icon="@Icons.Filled.Delete" Color="Color.Error" />
+                <MudIconButton @onclick="(() => GoToEnVikar(context.Id))" Icon="@Icons.Filled.ManageAccounts" Color="Color.Info" />
+                <MudIconButton @onclick="(() => GoToEditVikar(context.Id))" Icon="@Icons.Filled.Edit" Color="Color.Warning" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <div class="d-flex flex-wrap mt-4">
+        <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+        <MudSpacer />
+        <div style="min-width:200px;">
+            <MudText Inline="true" Class="align-self-center">Valgte vikar: @selectedItem1?.ForNavn @selectedItem1?.EfterNavn</MudText>
+        </div>
+    </div>
+}
+else
+{
+    sBar.Add("Vikarerne bliver hentet fra databasen, vent venligst... ", Severity.Info);
+    <span>
+        Vikarerne bliver hentet fra databasen, vent venligst...
+    </span>
+}
+
+
+
+@code {
+    //private IEnumerable<VikarQueryDto> vikarList { get; set; } = Enumerable.Empty<VikarQueryDto>();
+    private IEnumerable<VikarQueryDto> vikarList = new List<VikarQueryDto>();
+    private bool hover = true;
+    private string searchString1 = "";
+    private VikarQueryDto selectedItem1 = null;
+    private HashSet<VikarQueryDto> selectedItems = new HashSet<VikarQueryDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //sBar.Add("Vikarerne bliver hentet fra databasen, vent venligst... ", Severity.Info);
+        vikarList = await vikarService.GetVikareAsync();
+    }
+
+    private bool FilterFunc1(VikarQueryDto dto) => FilterFunc(dto, searchString1);
+
+    private bool FilterFunc(VikarQueryDto dto, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (dto.ForNavn.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (dto.EfterNavn.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (dto.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{dto.Id} {dto.Adresse} {dto.Telefon} {dto.Username} {dto.Password} {dto.DatoOprettet} {dto.AnsaettelsesDato} ".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private void GoToCreateVikar()
+    {
+        naviM.NavigateTo("/opretvikar");
+    }
+    private void GoToEditVikar(int Id)
+    {
+        naviM.NavigateTo($"/opdatervikar/{Id}");
+    }
+    private void GoToDeleteVikar(int Id)
+    {
+        naviM.NavigateTo($"/sletvikar/{Id}");
+    }
+    private void GoToEnVikar(int Id)
+    {
+        naviM.NavigateTo($"/vikar/{Id}");
+    }
+}

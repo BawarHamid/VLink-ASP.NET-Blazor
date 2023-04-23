@@ -1,0 +1,146 @@
+﻿@page "/vagter"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVagtService vagtService
+@inject IVikarService vikarService
+@inject IKlassevaerelseService klassevaerelseService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@attribute [Authorize(Roles = "Admin")]
+
+@if (vagtList != null)
+{
+    <MudContainer Class="d-flex justify-content-end" MaxWidth="MaxWidth.ExtraLarge">
+        <MudFab @onclick="GoToCreateVagt" StartIcon="@Icons.Filled.Task" Color="Color.Success" Label="Opret Ny Vagt"></MudFab>
+        @*<MudIconButton Icon="@Icons.Filled.PersonAdd" Color="Color.Success" />*@
+    </MudContainer>
+
+    <MudTable Items="@vagtList" Hover="@hover" Filter="new Func<VagtQueryDto,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+        <ToolBarContent>
+            <MudText Typo="Typo.h4">Vagt oversigt:</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="searchString1" Placeholder="Indtast vagtens informationer her.." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            @*<MudTh>Personalefoto</MudTh>*@
+            <MudTh>Id</MudTh>
+            <MudTh>Dato oprettet</MudTh>
+            <MudTh>Starttidspunkt</MudTh>
+            <MudTh>Sluttidspunkt</MudTh>
+            <MudTh>Status</MudTh>
+            <MudTh>VikarId</MudTh>
+            <MudTh>KlasseId</MudTh>
+            <MudTh Style="padding-left:115px">Actions</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            @*<MudCardMedia Image="icon-192.png" Height="100" />*@
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Dato">@context.Dato</MudTd>
+            <MudTd DataLabel="Start">@context.StartTid</MudTd>
+            <MudTd DataLabel="Slut">@context.SlutTid</MudTd>
+            <MudTd DataLabel="Status">@context.Status</MudTd>
+            <MudTd DataLabel="VikarId">@context.VikarId</MudTd>
+            <MudTd DataLabel="KlasseId">@context.KlasseVaerelseId</MudTd>
+            @*<option value="@context.Id">@vikarR.ForNavn</option>*@
+            @*<option name="scope" value="cc:cccc">Search C</option>*@
+            @* <td option>"@vikarR.Id">@vikarR.ForNavn</td>
+        <td option>"@klasseR.Id">@klasseR.LokaleInfo</td>*@
+
+            @*<MudTd DataLabel="VikarId">
+                @foreach (var vikar in vikarList)
+                {
+                    <MudTd> "@vikar.Id">@vikar.ForNavn</MudTd>
+                    <option value="@vikar.Id">@vikar.ForNavn</option>
+                }
+            </MudTd>
+
+            <MudTd DataLabel="KlasseId">
+                @foreach (var kl in klvList)
+                {
+                    <MudTd> "@kl.Id">@kl.LokaleInfo</MudTd>
+                    <option value="@kl.Id">@kl.LokaleInfo</option>
+                }
+            </MudTd>*@
+
+            <MudTd DataLabel="IconPos">
+                <MudIconButton @onclick="(() => GoToDeleteVagt(context.Id))" Icon="@Icons.Filled.Delete" Color="Color.Error" />
+                <MudIconButton @onclick="(() => GoToAVagt(context.Id))" Icon="@Icons.Filled.ManageAccounts" Color="Color.Info" />
+                <MudIconButton @onclick="(() => GoToEditVagt(context.Id))" Icon="@Icons.Filled.Edit" Color="Color.Warning" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager />
+        </PagerContent>
+    </MudTable>
+
+    <div class="d-flex flex-wrap mt-4">
+        <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+        <MudSpacer />
+        <div style="min-width:200px;">
+            <MudText Inline="true" Class="align-self-center">Valgte vagt: @selectedItem1?.Id</MudText>
+        </div>
+    </div>
+}
+else
+{
+    sBar.Add("Vagterne bliver hentet fra databasen, vent venligst... ", Severity.Info);
+    <span>
+        Vagterne bliver hentet fra databasen, vent venligst...
+    </span>
+}
+
+
+
+@code {
+    private IEnumerable<VagtQueryDto> vagtList = new List<VagtQueryDto>();
+    private IEnumerable<VikarQueryDto> vikarList = new List<VikarQueryDto>();
+    private IEnumerable<KlasseVaerelseDto> klvList = new List<KlasseVaerelseDto>();
+
+    private VagtQueryDto vagtR = new VagtQueryDto();
+    private VikarQueryDto vikarR = new VikarQueryDto();
+    private KlasseVaerelseDto klasseR = new KlasseVaerelseDto();
+
+    private bool hover = true;
+    private string searchString1 = "";
+    private VagtQueryDto selectedItem1 = null;
+    private HashSet<VagtQueryDto> selectedItems = new HashSet<VagtQueryDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //sBar.Add("Vikarerne bliver hentet fra databasen, vent venligst... ", Severity.Info);
+        vagtList = await vagtService.GetVagterAsync();
+        vikarList = await vikarService.GetVikareAsync();
+        klvList = await klassevaerelseService.GetKlasseVaerelserAsync();
+    }
+
+    private bool FilterFunc1(VagtQueryDto dto) => FilterFunc(dto, searchString1);
+
+    private bool FilterFunc(VagtQueryDto dto, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (dto.Status.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{dto.Id} {dto.VikarId} {dto.KlasseVaerelseId} {dto.Status} {dto.StartTid} {dto.SlutTid} ".Contains(searchString))
+            return true;
+        return false;
+    }
+
+    private void GoToCreateVagt()
+    {
+        naviM.NavigateTo("/opretvagt");
+    }
+    private void GoToEditVagt(int Id)
+    {
+        naviM.NavigateTo($"/opdatervagt/{Id}");
+    }
+    private void GoToDeleteVagt(int Id)
+    {
+        naviM.NavigateTo($"/sletvagt/{Id}");
+    }
+    private void GoToAVagt(int Id)
+    {
+        naviM.NavigateTo($"/vagt/{Id}");
+    }
+}

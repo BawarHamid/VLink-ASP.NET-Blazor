@@ -1,0 +1,45 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager naviM
+@inject MudBlazor.ISnackbar sBar
+
+
+<div class="page">
+
+    <main>
+        <div class="topnav">
+            <NavMenu />
+        </div>
+        <article class="content px-4">
+            <CustomErrorBoundary @ref="@errorBoundary" Context="Exception">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <div class="alert alert-info text-black alert-dismissible">
+                        <MudLink onclick=@ReturnToVikar>Klik her</MudLink>
+                        <b>for at bekræfte oprettelse af vikaren</b>
+                    </div>
+                    <div>
+                        <MudButton @onclick="@errorBoundary.Recover" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">Vend tilbage til Vikaroversigt</MudButton>
+                    </div>
+
+                </ErrorContent>
+            </CustomErrorBoundary>
+        </article>
+    </main>
+</div>
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@code {
+   
+    private ErrorBoundary errorBoundary;
+
+    private void ReturnToVikar()
+    {
+        naviM.NavigateTo("/vikarer");
+        sBar.Add("Vikaren er oprettet", Severity.Success);
+    }
+
+}

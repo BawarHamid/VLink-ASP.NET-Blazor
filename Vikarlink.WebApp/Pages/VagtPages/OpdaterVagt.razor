@@ -1,0 +1,121 @@
+﻿@page "/opdatervagt"
+@page "/opdatervagt/{Id:int}"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVagtService vagtService
+@inject IVikarService vikarService
+@inject IKlassevaerelseService klassevaerelseService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VAGTEN|@querydto.Id</PageTitle>
+<h3>Opdatering af vagt: @querydto.Id, @querydto.VikarId</h3>
+<br />
+
+@if (Id == null)
+{
+    <h3>Opdater Vagten</h3>
+    <div>Loader Vagten</div>
+}
+else
+{
+    <EditForm Model="querydto" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label for="idL">Vagt Id:</label>
+            <InputNumber id="idI" @bind-Value="querydto.Id" class="form-control" disabled="true"></InputNumber>
+            <ValidationMessage For="@(() => querydto.Id)" />
+        </div>
+        <br />
+        <div>
+            <label for="datoL">Oprettelsesdato:</label>
+            <InputDateTime id="datoI" @bind-Value="querydto.Dato" class="form-control"></InputDateTime>
+            <ValidationMessage For="@(() => querydto.Dato)" />
+        </div>
+        <br />
+        <div>
+            <label for="startL">Vagt Start:</label>
+            <InputDateTime id="startI" @bind-Value="querydto.StartTid" class="form-control"></InputDateTime>
+            <ValidationMessage For="@(() => querydto.StartTid)" />
+        </div>
+        <br />
+        <div>
+            <label for="slutL">Vagt Slut:</label>
+            <InputDateTime id="slutI" @bind-Value="querydto.SlutTid" class="form-control"></InputDateTime>
+                <ValidationMessage For="@(() => querydto.SlutTid)" />
+        </div>
+        <br />
+        <div>
+            <label for="statusL">Status på vagt:</label>
+            <InputText id="statusI" @bind-Value="querydto.Status" class="form-control"></InputText>
+            <ValidationMessage For="@(() => querydto.Status)" />
+        </div>
+        <br />
+        <div>
+            <label for="vikaridL">Vælg Vikar:</label>
+            <ValidationMessage For="@(() => querydto.VikarId)" />
+            <InputSelect @bind-Value="querydto.VikarId" class="form-select">
+                @foreach (var vikar in vikarList)
+                {
+                    <option value="@vikar.Id">@vikar.ForNavn @vikar.EfterNavn (@vikar.Id)</option>
+                }
+            </InputSelect>
+        </div>
+        <div>
+            <label for="klvL">Vælg Klasse:</label>
+            <ValidationMessage For="@(() => querydto.KlasseVaerelseId)" />
+            <InputSelect @bind-Value="querydto.KlasseVaerelseId" class="form-select">
+                @foreach (var klv in klvList)
+                {
+                    <option value="@klv.Id">@klv.LokaleInfo (@klv.Id)</option>
+                }
+            </InputSelect>
+        </div>
+        <br />
+        <div class="submit" style="position: absolute">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" Size="Size.Large">@btnText</MudButton>
+        </div>
+        <div class="backTo" style="float: right">
+            <MudIconButton @onclick="(() => ReturnToAll())" Icon="@Icons.Filled.KeyboardReturn" Size="Size.Large" Color="Color.Warning" />
+        </div>
+    </EditForm>
+}
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+    public VagtQueryDto querydto { get; set; } = new VagtQueryDto();
+    private IEnumerable<VikarQueryDto> vikarList = new List<VikarQueryDto>();
+    private IEnumerable<KlasseVaerelseDto> klvList = new List<KlasseVaerelseDto>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == null)
+        {
+            throw new Exception("Http status 404, Ingen vagter i databasen med dette Id");
+        }
+        else
+        {
+            querydto = await vagtService.GetVagtAsync((int)Id);
+            btnText = Id == null ? "Der er ingen vagter" : "Gem Vagt";
+            vikarList = await vikarService.GetVikareAsync();
+            klvList = await klassevaerelseService.GetKlasseVaerelserAsync();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        await vagtService.UpdateVagtAsync(querydto.Id, querydto);
+        sBar.Add("Vagten er nu opdateret ", Severity.Warning);
+        naviM.NavigateTo("/vagter");
+    }
+
+    private void ReturnToAll()
+    {
+        naviM.NavigateTo("/vagter");
+    }
+}

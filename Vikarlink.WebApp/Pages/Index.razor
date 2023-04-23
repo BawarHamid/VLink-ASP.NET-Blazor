@@ -1,0 +1,64 @@
+﻿@page "/startside"
+@inject NavigationManager naviM
+@attribute [Authorize(Roles = "Admin, User")]
+
+<AuthorizeView Roles="User">
+    <Authorized>
+        <h3>Velkommen <b>@context.User.Identity.Name</b></h3>
+        <br />
+        <p>
+            Du er nu logget ind i vores bookingsystem.
+        </p>
+        <p>
+            Her skal du fortælle os hvordan og hvornår du kan arbejde. Du skal som det første sørge for at tag et kig på dine oplysninger.
+        </p>
+        <p>
+            "Min side" vores vigtigste redskab for at kunne tilbyde dig de vagter som du ønsker.
+        </p>
+        <p>
+            Det er vigtigt at alle dage er udfyldt med enten hele vagter, tidsrum hvor du kan arbejde eller ønsker ikke vagt.
+        </p>
+        <p>
+            Har du brug for hjælp kan du altid ringe til Vikarlinks tlf.: +45 63 11 22 55
+        </p>
+        <div class="submit" style="position: absolute">
+            <MudButton @onclick="(() => GoToMinSide())" Variant="Variant.Filled" StartIcon="@Icons.Outlined.Person" Color="Color.Surface" Size="Size.Large">Til Min Side</MudButton>
+            <MudButton @onclick="(() => GoToMineVagter())" Variant="Variant.Filled" StartIcon="@Icons.Outlined.Task" Color="Color.Surface" Size="Size.Large">Til Mine Vagter</MudButton>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <h3>Velkommen <b>@context.User.Identity.Name</b></h3>
+        <br />
+        <p>
+            Du er nu logget ind i vores bookingsystem som en "admin"
+        </p>
+        <p>
+            Du har adgang til systemets tilgængelige funktioner, så tag dig god tid, og sæt dig ind systemet før du leger med det!
+        </p>
+        <p>
+            Det er vigtigt, at du kommunikerer jævnligt med uddannelsesinstitutionen, som systemet er hos, da det er dig, som skal guide dem.
+        </p>
+        <p>
+            Har du brug for hjælp til noget akut, kan du altid ringe til Vikarlinks tlf.: +45 63112255
+        </p>
+        <p>
+            Held og lykke med det, og god vind.
+        </p>
+    </Authorized>
+</AuthorizeView>
+
+
+@code {
+    private void GoToMinSide()
+    {
+        naviM.NavigateTo("/minside");
+    }
+
+    private void GoToMineVagter()
+    {
+        naviM.NavigateTo("/minevagter");
+    }
+}

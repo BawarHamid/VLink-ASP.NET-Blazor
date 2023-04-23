@@ -1,0 +1,9 @@
+HUSK AT KØR PROGRAMMET SOM <Multiple Startup Projects>, DA VI GLEMTE AT KRYDSE ASP.NET CORE HOSTED AF, DA VI LAVEDE PROJEKTET.. 
+
+Som admin skal logge ind med:
+admin & adminKode1
+
+og login som vikar:
+test & testKode1
+
+HUSK AT KØR PROGRAMMET SOM <Multiple Startup Projects>, DA VI GLEMTE AT KRYDSE ASP.NET CORE HOSTED AF, DA VI LAVEDE PROJEKTET.. 

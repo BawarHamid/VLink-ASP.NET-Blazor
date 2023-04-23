@@ -1,0 +1,100 @@
+﻿@page "/vikar"
+@page "/vikar/{Id:int}"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVikarService vikarService
+@inject NavigationManager naviM
+@inject MudBlazor.ISnackbar sBar
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VIKAREN|@querydto.ForNavn @querydto.EfterNavn</PageTitle>
+<h3>Individuel side af: @querydto.Id, @querydto.ForNavn @querydto.EfterNavn</h3>
+
+@if (Id == null)
+{
+    <h3>Hent Vikar</h3>
+    <div>Loader vikaren</div>
+}
+else
+{
+    <EditForm Model="querydto" OnSubmit="HandleSubmit">
+        <div>
+            <label for="idL">Vikar id</label>
+            <InputNumber id="idI" @bind-Value="querydto.Id" class="form-control" disabled="true"></InputNumber>
+        </div>
+        <br />
+        <div>
+            <label for="fornavnL">Fornavn</label>
+            <InputText id="fornavnI" @bind-Value="querydto.ForNavn" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="efternavnL">Efternavn</label>
+            <InputText id="efternavnI" @bind-Value="querydto.EfterNavn" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="adresseL">Adresse</label>
+            <InputText id="adresseI" @bind-Value="querydto.Adresse" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="telefonL">Telefon</label>
+            <InputText id="telefonI" @bind-Value="querydto.Telefon" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="emailL">Email</label>
+            <InputText id="emailI" @bind-Value="querydto.Email" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="brugernavnL">Brugernavn</label>
+            <InputText id="brugernavnI" @bind-Value="querydto.Username" class="form-control" disabled="true"></InputText>
+        </div>
+        <div>
+            <label for="adgangskodeL">Adgangskode</label>
+            <InputText id="adgangskodeI" @bind-Value="querydto.Password" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="datoOprettetL">Oprettelsesdato</label>
+            <InputDateTime id="datoOprettetI" @bind-Value="querydto.DatoOprettet" class="form-control" disabled="true"></InputDateTime>
+        </div>
+        <div>
+            <label for="ansættelsesdatoL">Ansættelsesdato</label>
+            <InputDateTime id="ansættelsesdatoI" @bind-Value="querydto.AnsaettelsesDato" class="form-control" disabled="true"></InputDateTime>
+        </div>
+
+        <div class="backTo1 " style="position:absolute">
+            <MudIconButton @onclick="(() => HandleSubmit())" Icon="@Icons.Filled.SwipeLeft" Size="Size.Large" Color="Color.Info" />
+        </div>
+        <div class="backTo2 " style="float: right">
+            <MudIconButton @onclick="(() => HandleSubmit())" Icon="@Icons.Filled.SwipeRight" Size="Size.Large" Color="Color.Info" />
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    string btnText = string.Empty;
+    public VikarQueryDto querydto { get; set; } = new VikarQueryDto();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == null)
+        {
+            throw new Exception("Http status 404, Ingen vikar i databasen med dette Id");
+        }
+        else
+        {
+            querydto = await vikarService.GetVikarAsync((int)Id);
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        naviM.NavigateTo("/vikarer");
+    }
+}

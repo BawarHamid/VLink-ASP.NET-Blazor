@@ -1,0 +1,111 @@
+﻿@page "/sletvikar"
+@page "/sletvikar/{Id:int}"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVikarService vikarService
+@inject NavigationManager naviM
+@inject MudBlazor.ISnackbar sBar
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VIKAREN | @querydto.ForNavn @querydto.EfterNavn</PageTitle>
+<h4>Eliminering af: @querydto.Id, @querydto.ForNavn @querydto.EfterNavn</h4>
+
+@if (Id == null)
+{
+    <h3>SletVikar</h3>
+    <div>Loader vikaren</div>
+}
+else
+{
+    <EditForm Model="querydto" OnSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <div>
+            <label for="idL">Vikar id</label>
+            <InputNumber readonly id="idI" @bind-Value="querydto.Id" class="form-control" disabled="true"></InputNumber>
+        </div>
+        <br />
+        <div>
+            <label for="fornavnL">Fornavn</label>
+            <InputText id="fornavnI" @bind-Value="querydto.ForNavn" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="efternavnL">Efternavn</label>
+            <InputText id="efternavnI" @bind-Value="querydto.EfterNavn" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="adresseL">Adresse</label>
+            <InputText id="adresseI" @bind-Value="querydto.Adresse" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="telefonL">Telefon</label>
+            <InputText id="telefonI" @bind-Value="querydto.Telefon" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="emailL">Email</label>
+            <InputText id="emailI" @bind-Value="querydto.Email" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="brugernavnL">Brugernavn</label>
+            <InputText id="brugernavnI" @bind-Value="querydto.Username" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="adgangskodeL">Adgangskode</label>
+            <InputText id="adgangskodeI" @bind-Value="querydto.Password" class="form-control" disabled="true"></InputText>
+        </div>
+        <br />
+        <div>
+            <label for="datoOprettetL">Oprettelsesdato</label>
+            <InputDateTime id="datoOprettetI" @bind-Value="querydto.DatoOprettet" class="form-control" disabled="true"></InputDateTime>
+        </div>
+        <div>
+            <label for="ansættelsesdatoL">Ansættelsesdato</label>
+            <InputDateTime id="ansættelsesdatoI" @bind-Value="querydto.AnsaettelsesDato" class="form-control" disabled="true"></InputDateTime>
+        </div>
+        <br />
+        <div class="submit" style="position:absolute">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.DeleteForever" Color="Color.Error" Size="Size.Large">@btnText</MudButton>
+        </div>
+        <div class="backTo" style="float: right">
+            <MudIconButton @onclick="(() => ReturnToAll())" Icon="@Icons.Filled.KeyboardReturn" Size="Size.Large" Color="Color.Error" />
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+    public VikarQueryDto querydto { get; set; } = new VikarQueryDto();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id == null)
+        {
+            throw new Exception("Http status 404, Ingen vikarer i databasen med dette Id");
+        }
+        else
+        {
+            querydto = await vikarService.GetVikarAsync((int)Id);
+            btnText = Id == null ? "Der er ingen vikar" : "Slet Vikaren";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        await vikarService.DeleteVikarAsync(querydto.Id);
+        sBar.Add("Vikaren er nu slettet fra databasen ", Severity.Error);
+        naviM.NavigateTo("/vikarer");
+    }
+
+    private void ReturnToAll()
+    {
+        naviM.NavigateTo("/vikarer");
+    }
+}

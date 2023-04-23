@@ -1,0 +1,169 @@
+﻿@page "/findvikar"
+@using Vikarlink.Shared.Dtos.OutgoingDtos;
+@inject IVagtService vagtService
+@inject IVikarService vikarService
+@inject IKlassevaerelseService klassevaerelseService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@inject AuthenticationStateProvider authState
+@attribute [Authorize(Roles = "Admin")]
+
+
+<PageTitle>VIKARLINK | MIN PROFIL</PageTitle>
+
+<EditForm Model="@vikarDto" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <div class="container-fluid">
+        <div class="border container" style="padding: 60px">
+            <div style="vertical-align: top;">
+                <h5>STAMOPLYSNINGER VIKAREN: @vikarDto.ForNavn @vikarDto.EfterNavn</h5>
+            </div>
+            <form class="row g-3">
+                @*VikarId*@
+                <div class="col-md-6">
+                    <label for="idL" class="control-label">Id:</label>
+                    <InputNumber id="idI" @bind-Value="vikarDto.Id" class="form-control" disabled="true"></InputNumber>
+                    <ValidationMessage For="@(() => vikarDto.Id)" />
+                </div>
+
+                @*Fornavn*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Fornavn:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.ForNavn" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.ForNavn)" />
+                </div>
+
+                @*Efternavn*@
+                <div class="col-md-6">
+                    <label for="efterL" class="control-label">Efternavn:</label>
+                    <InputText id="efterI" @bind-Value="vikarDto.EfterNavn" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.EfterNavn)" />
+                </div>
+
+                @*Adresse*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Adresse:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.Adresse" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.Adresse)" />
+                </div>
+
+                @*Telefon*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Telefon:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.Telefon" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.Telefon)" />
+                </div>
+
+                @*Email*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Email:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.Email" class="form-control"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.Email)" />
+                </div>
+
+                @*Username*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Brugernavn:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.Username" class="form-control" disabled="true"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.Username)" />
+                </div>
+
+                @*Password*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Adgangskode:</label>
+                    <InputText id="fornavnI" @bind-Value="vikarDto.Password" class="form-control" disabled="true"></InputText>
+                    <ValidationMessage For="@(() => vikarDto.Password)" />
+                </div>
+
+                @*Dato oprettet*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Oprettelsesdato:</label>
+                    <InputDateTime id="fornavnI" @bind-Value="vikarDto.DatoOprettet" class="form-control" disabled="true"></InputDateTime>
+                    <ValidationMessage For="@(() => vikarDto.DatoOprettet)" />
+                </div>
+
+                @*Dato ansættelse*@
+                <div class="col-md-6">
+                    <label for="fornavnL" class="control-label">Ansættelsesdato:</label>
+                    <InputDateTime id="fornavnI" @bind-Value="vikarDto.AnsaettelsesDato" class="form-control" disabled="true"></InputDateTime>
+                    <ValidationMessage For="@(() => vikarDto.AnsaettelsesDato)" />
+                </div>
+            </form>
+            <br />
+            <div class="submit" style="position:absolute">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Save" Color="Color.Warning" Size="Size.Large">Gem ændringer</MudButton>
+            </div>
+            <div class="backTo" style="float: right">
+                <MudButton @onclick="(() => ReturnToStart())" Variant="Variant.Filled" StartIcon="@Icons.Filled.KeyboardReturn" Color="Color.Info" Size="Size.Large">StartSide</MudButton>
+            </div>
+        </div>
+        </div>
+        <br />
+        <h4>Mine vagter:</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Dato oprettet</th>
+                    <th>Starttidspunkt</th>
+                    <th>Sluttidspunkt</th>
+                    <th>Status</th>
+                    <th>Vikar nr</th>
+                    <th>Klasseværelse nr</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vagter in vagtList)
+                {
+                    <tr>
+                        <td>@vagter.Id</td>
+                        <td>@vagter.Dato</td>
+                        <td>@vagter.StartTid</td>
+                        <td>@vagter.SlutTid</td>
+                        <td>@vagter.Status</td>
+                        <td>@vagter.VikarId</td>
+                        <td>@vagter.KlasseVaerelseId</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="submit" style="position:absolute">
+            <MudNumericField HideSpinButtons="true" @bind-Value="Id" Label="INDTAST VIKARENS ID" Variant="Variant.Text" Min="1" Max="500" />
+            <br />
+            <MudButton @onclick="(() => GetVikarNVagter())" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.GetApp" Color="Color.Info" Size="Size.Large">Hent Vikars Info</MudButton>
+        </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+    private VagtQueryDto vagtDto = new VagtQueryDto();
+    private VikarQueryDto vikarDto { get; set; } = new VikarQueryDto();
+    private IEnumerable<VagtQueryDto> vagtList = new List<VagtQueryDto>();
+
+    private async Task HandleSubmit()
+    {
+        await vikarService.UpdateVikarAsync(vikarDto.Id, vikarDto);
+        sBar.Add("Vikaren er nu opdateret ", Severity.Warning);
+    }
+
+    private async Task GetVikarNVagter()
+    {
+        sBar.Add("HENTER DINE OPLYSNINGER, VAGTER MM...", Severity.Normal);
+        vagtList = await vagtService.GetVikarVagterAsync((int)Id);
+        vikarDto = await vikarService.GetVikarAsync((int)Id);
+    }
+
+    private void ReturnToStart()
+    {
+        naviM.NavigateTo("/startside");
+    }
+
+    private void GoToVagter()
+    {
+        naviM.NavigateTo("/minevagter");
+    }
+}

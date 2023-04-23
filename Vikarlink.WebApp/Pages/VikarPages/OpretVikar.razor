@@ -1,0 +1,104 @@
+﻿@page "/opretvikar"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVikarService vikarService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VIKAREN|VIKARLINK</PageTitle>
+<h4>Opret en vikar her:</h4>
+<br />
+
+<div class="container">
+    <EditForm Model="@dto" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+
+        <div>
+             <label for="fornanvL">Fornavn</label>
+            <InputText id="fornavnI" placeholder="Indtast fornavn..." @bind-Value="dto.ForNavn" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.ForNavn)" />
+            @*<MudTextField @bind-Value="dto.ForNavn" Label="Indtast fornavn..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+
+        <br />
+        <div>
+            <label for="efternavnL">Efternavn</label>
+            <InputText id="efternavnI" placeholder="Indtast efternavn..." @bind-Value="dto.EfterNavn" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.EfterNavn)" />
+            @*<MudTextField @bind-Value="dto.EfterNavn" Label="Indtast efternavn..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control"  />*@
+        </div>
+        <br />
+        <div>
+            <label for="adresseL">Adresse</label>
+            <InputText id="adresseI" placeholder="Indtast adresse..." @bind-Value="dto.Adresse" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.Adresse)" />
+            @*<MudTextField @bind-Value="dto.Adresse" Label="Indtast adresse..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+        <br />
+        <div>
+            <label for="telefonL">Telefon</label>
+            <InputText id="telefonI" placeholder="Indtast mobilnummer..." @bind-Value="dto.Telefon" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.Telefon)" />
+            @*<MudTextField @bind-Value="dto.Telefon" Label="Indtast mobilnummer..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+        <br />
+        <div>
+            <label for="emailL">Email</label>
+            <InputText id="emailI" placeholder="Indtast mailadresse..." @bind-Value="dto.Email" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.Email)" />
+            @*<MudTextField @bind-Value="dto.Email" Label="Indtast mailadresse..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+        <br />
+        <div>
+            <label for="brugernavnL">Brugernavn</label>
+            <InputText id="brugernavnI" placeholder="Indtast brugernavn..." @bind-Value="dto.Username" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.Username)" />
+            @*<MudTextField @bind-Value="dto.Username" Label="Indtast brugernavn..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+        <br />
+        <div>
+            <label for="adgangskodeL">Adgangskode</label>
+            <InputText id="adgangskodeI" placeholder="Indtast adgangskode..." @bind-Value="dto.Password" class="form-control"></InputText>
+            <ValidationMessage For="@(() => dto.Password)" />
+            @*<MudTextField @bind-Value="dto.Password" Label="Indtast adgangskode..." Variant="Variant.Text" Margin="Margin.Dense" class="form-control" />*@
+        </div>
+        <br />
+        <div>
+            <label for="datoOprettetL">Oprettelsesdato</label>
+            <ValidationMessage For="@(() => dto.DatoOprettet)" />
+            <InputDateTime readonly id="datoOprettetI" placeholder="Dato for oprettelse.." @bind-Value="dto.DatoOprettet" class="form-control" disabled="true"></InputDateTime>
+        </div>
+        <div>
+            <label for="ansættelsesdatoL">Job start</label>
+            <ValidationMessage For="@(() => dto.AnsaettelsesDato)" />
+            <InputDateTime id="ansættelsesdatoI" placeholder="Dato for ansættelse..." @bind-Value="dto.AnsaettelsesDato" class="form-control"></InputDateTime>
+        </div>
+        <br />
+        <div class="opret" style="position:absolute">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.PersonAdd" Color="Color.Success" Size="Size.Large">Opret Vikar</MudButton>
+        </div>
+        <div class="backTo2 " style="float: right">
+            <MudIconButton @onclick="(() => ReturnToAll())" Icon="@Icons.Filled.KeyboardReturn" Size="Size.Large" Color="Color.Success" />
+        </div>
+
+    </EditForm>
+</div>
+
+
+@code {
+    private VikarRequestDto dto = new VikarRequestDto();
+
+    private async Task HandleValidSubmit()
+    {
+        await vikarService.CreateVikarAsync(dto);
+
+        sBar.Add("Vikaren er nu oprettet", Severity.Success);
+        naviM.NavigateTo("/vikarer");
+    }
+
+    private void ReturnToAll()
+    {
+        naviM.NavigateTo("/vikarer");
+    }
+}

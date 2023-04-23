@@ -1,0 +1,226 @@
+﻿@page "/Kontakt"
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+
+
+
+
+
+<style>
+
+.info-wrap {
+    color: rgba(255, 255, 255, 0.8);
+}
+.bg-primary {
+    background: #01d28e !important;
+}
+
+.p-md-5 {
+    padding: 3rem !important;
+}
+.p-4 {
+    padding: 1.5rem !important;
+}
+.w-100 {
+    width: 100% !important;
+}
+.bg-primary {
+    background-color: #007bff !important;
+}
+*, *::before, *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+user agent stylesheet
+div {
+    display: block;
+}
+body {
+    font-family: "Poppins", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    font-weight: normal;
+    background: #fafafa;
+    color: gray;
+}
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: left;
+    background-color: #fff;
+}
+
+
+html {
+    font-family: sans-serif;
+    line-height: 1.15;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+*, *::before, *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+</style>
+
+
+
+
+
+
+@*
+
+<section class="ftco-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center mb-5">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="wrapper">
+                    <div class="row no-gutters">
+                        <div class="col-lg-8 col-md-7 order-md-last d-flex align-items-stretch" >
+                            <div class="contact-wrap w-100 p-md-5 p-4" >
+                                
+                                <h3 class="mb-4">Kontaktformular</h3>
+                             
+                                    Prøv vikarlink gratis i 60 dage, helt uden binding.
+                                    <br />
+                                    Lyder vikarlink løsningen som noget for din institution, eller har du nogle spørgsmål til projektet, kan du kontakte vikarlink gennem kontaktformularen her på siden.
+                                    <br />
+                                    Vikarlink er udarbejdet i samarbejde med vikarer fra Syddanmark, som er tilrettelagt specielt til branchen.
+                                </div>
+
+                               <!----------------------------------------------------------------!>
+                                
+                               <form method="POST" id="contactForm" name="contactForm" class="contactForm" novalidate="novalidate">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="label" for="name">Fulde navn</label>
+                                                <input type="text" class="form-control" name="name" id="name" placeholder="Name">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="label" for="email">Email</label>
+                                                <input type="email" class="form-control" name="email" id="email" placeholder="Email">
+                                                </div>
+                                            </div>
+                                       
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="label" for="subject">Emne på henvendelse</label>
+                                                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject">
+                                            </div>
+                                        </div>
+                                        
+                                       
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label class="label" for="#">Beskrivelse</label>
+                                                <textarea name="message" class="form-control" id="message" cols="30" rows="4" placeholder="Message"></textarea>
+                                            </div>
+                                        </div>
+                                        
+                                        
+
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <button @onclick="@ReturnToHome" value="Send Message" class="btn btn-primary"> Send</button>
+                                                <div class="submitting"></div>
+                                            </div>
+                                        </div>
+
+                                        
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-5 d-flex align-items-stretch">
+                            <div class="info-wrap bg-primary w-100 p-md-5 p-4" ><div/>
+                                <h3>Kontakt os</h3>
+                                <p class="mb-4">Vi er åbne for alle muligheder</p>
+
+                               
+
+                                <div class="dbox w-100 d-flex align-items-start">
+                                    <div class="icon d-flex align-items-center justify-content-center">
+                                        <span class="fa fa-map-marker"></span>
+                                    </div>
+                                    <div class="text pl-3">
+                                        <p><span>Addresse:</span> Boulevarden 25, 7100 Vejle</p>
+                                    </div>
+                                </div>
+
+                                <br/>
+                                <br/>
+
+                                <div class="dbox w-100 d-flex align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center">
+                                        <span class="fa fa-phone"></span>
+                                    </div>
+                                    <div class="text pl-3">
+                                        <p><span>Telefon:</span> <a href="tel://1234567920">+45 63 11 22 55</a></p>
+                                    </div>
+                                </div>
+
+                                <br/>
+                                <br/>
+
+                                <div class="dbox w-100 d-flex align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center">
+                                        <span class="fa fa-paper-plane"></span>
+                                    </div>
+                                    <div class="text pl-3">
+                                        <p><span>Email:</span> <a href="mailto:info@yoursite.com">info@vikarlink.dk</a></p>
+                                    </div>
+                                </div>
+
+                                <br/>
+                                <br/>
+
+                                <div class="dbox w-100 d-flex align-items-center">
+                                    <div class="icon d-flex align-items-center justify-content-center">
+                                        <span class="fa fa-globe"></span>
+                                    </div>
+                                    <div class="text pl-3">
+                                        <p><span>Hjemmeside</span> <a href="#">vikarlink.dk</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</section>
+
+
+*@
+
+
+
+
+
+@code {
+    private void ReturnToHome()
+    {
+        sBar.Add("Din henvendelse er sendt ", Severity.Success);
+        naviM.NavigateTo("/");
+    }
+}

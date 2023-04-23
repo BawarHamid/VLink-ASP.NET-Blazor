@@ -1,0 +1,200 @@
+﻿<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        header {
+            margin-top: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: white;
+        }
+
+        button {
+            float: right;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 1px 1px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        ul {
+            list-style: none;
+            background: #6eb0bf;
+            /*background: #9A616D;*/
+        }
+
+            ul li {
+                display: inline-block;
+                position: relative;
+            }
+
+                ul li a {
+                    display: block;
+                    padding: 20px 25px;
+                    color: #FFF;
+                    text-decoration: none;
+                    text-align: center;
+                    frot-size: 20px;
+                    width: 150px;
+                }
+
+                ul li ul.dropdown li {
+                    display: block;
+                }
+
+                ul li ul.dropdown {
+                    width: 100%;
+                    background: #6eb0bf;
+                    /*background: #9A616D;*/
+                    position: absolute;
+                    z-index: 999;
+                    display: none;
+                }
+
+                ul li a:hover {
+                    background: #6eb0bf;
+                    /*background: #9A616D;*/
+                }
+
+                ul li:hover ul.dropdown {
+                    display: block;
+                }
+    </style>
+
+</head>
+<header>
+    <ul>
+        @*Startside menu*@
+        <AuthorizeView>
+            <li>
+                <a href="/startside">Start Side</a>
+            </li>
+        </AuthorizeView>
+
+
+        @*Om os menu*@
+        <li>
+            <a href="/OmOs">Om os</a>
+        </li>
+
+        @*Kontakt menu*@
+        <li>
+            <a href="/Kontakt">Kontakt</a>
+        </li>
+
+        @*Ledig stillinger menu*@
+        <li>
+            <a href="/LedigStillinger">Ledig stillinger</a>
+        </li>
+
+        @*VikarOversigt menu*@
+        @*<AuthorizeView Roles="Admin"> kun for admin*@
+        <AuthorizeView Roles="Admin">
+            <li>
+                <a href="/vikarer">Vikar oversigt</a>
+            </li>
+        </AuthorizeView>
+
+        @*VagtOversigt menu*@
+        @*<AuthorizeView Roles="Admin"> kun for admin*@
+        <AuthorizeView Roles="Admin">
+            <li>
+                <a href="/vagter">Vagt oversigt</a>
+            </li>
+        </AuthorizeView>
+
+        @*Min profil Vikar*@
+        <AuthorizeView Roles="User">
+            <li>
+                <a href="/minside">Min Profil</a>
+            </li>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="User">
+            <li>
+                <a href="/minevagter">Mine Vagter</a>
+            </li>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin">
+            <li>
+                <a href="/findvikar">Søg efter Vikar</a>
+            </li>
+        </AuthorizeView>
+
+
+        @*Login menu*@
+        <LoginLogoutNav />
+    </ul>
+</header>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Vikarlink.WebApp</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="counter">
+                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="fetchdata">
+                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            </NavLink>
+        </div>
+    </nav>
+</div>
+-->
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

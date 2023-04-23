@@ -1,0 +1,99 @@
+﻿@page "/opretvagt"
+@using Vikarlink.Shared.Dtos.IncomingDtos
+@using Vikarlink.Shared.Dtos.OutgoingDtos
+@inject IVagtService vagtService
+@inject IVikarService vikarService
+@inject IKlassevaerelseService klassevaerelseService
+@inject MudBlazor.ISnackbar sBar
+@inject NavigationManager naviM
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>VAGT|VIKARLINK</PageTitle>
+<h3>Opret en vagt her:</h3>
+<br />
+
+<div class="container">
+    <EditForm Model="vagtDto" OnValidSubmit="AddNewVagt">
+        <DataAnnotationsValidator />
+
+        <div>
+            <label for="datoL">Datooprettet</label>
+            @*<InputDate id="datovagtI" placeholder="DD/MM/YYYY" @bind-Value="vagtDto.Dato" class="form-control"></InputDate>*@
+            <InputDateTime id="datevagt" @bind-Value="vagtDto.Dato" class="form-control"></InputDateTime>
+                <ValidationMessage For="@(() => vagtDto.Dato)" />
+        </div>
+        <br />
+        <div>
+            <label for="starttidL">Start</label>
+            @* <InputDate id="starttidI" placeholder="Vagt startstid" @bind-Value="vagtDto.StartTid" class="form-control"></InputDate>*@
+            <InputDateTime id="starttidI" @bind-Value="vagtDto.StartTid" class="form-control"></InputDateTime>
+            <ValidationMessage For="@(() => vagtDto.StartTid)" />
+        </div>
+        <br />
+        <div>
+            <label for="sluttidL">Slut</label>
+            @* <InputDate id="sluttidI" placeholder="Vagt sluttid" @bind-Value="vagtDto.SlutTid" class="form-control"></InputDate>*@
+            <InputDateTime id="sluttidI" @bind-Value="vagtDto.SlutTid" class="form-control"></InputDateTime>
+            <ValidationMessage For="@(() => vagtDto.SlutTid)" />
+        </div>
+        <br />
+        <div>
+            <label for="StatusL">Status</label>
+            <InputText id="StatusI" placeholder="Status på vagt.." @bind-Value="vagtDto.Status" class="form-control"></InputText>
+            <ValidationMessage For="@(() => vagtDto.Status)" />
+        </div>
+        <br />
+        <div>
+            <label>Vælg vikar ud fra Id</label><br />
+            <ValidationMessage For="@(() => vagtDto.VikarId)" />
+            <InputSelect @bind-Value="vagtDto.VikarId" class="form-select">
+                @foreach (var vikar in vikarList)
+                {
+                    <option value="@vikar.Id">@vikar.ForNavn @vikar.EfterNavn (@vikar.Id)</option>
+                }
+            </InputSelect>
+            <br />
+            <label>Vælg klasseværelse ud fra Id</label><br />
+            <ValidationMessage For="@(() => vagtDto.KlasseVaerelseId)" />
+            <InputSelect @bind-Value="vagtDto.KlasseVaerelseId" class="form-select">
+                @foreach (var klv in klvList)
+                {
+                    <option value="@klv.Id">@klv.LokaleInfo (@klv.Id)</option>
+                }
+            </InputSelect>
+        </div>
+        <br />
+        <div class="opret" style="position:absolute">
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Task" Color="Color.Success" Size="Size.Large">Opret Vagt</MudButton>
+        </div>
+        <div class="backTo2 " style="float: right">
+            <MudIconButton @onclick="(() => ReturnToAll())" Icon="@Icons.Filled.KeyboardReturn" Size="Size.Large" Color="Color.Success" />
+        </div>
+    </EditForm>
+</div>
+
+
+
+@code {
+    private VagtRequestDto vagtDto = new VagtRequestDto();
+    private IEnumerable<VikarQueryDto> vikarList = new List<VikarQueryDto>();
+    private IEnumerable<KlasseVaerelseDto> klvList = new List<KlasseVaerelseDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        vikarList = await vikarService.GetVikareAsync();
+        klvList = await klassevaerelseService.GetKlasseVaerelserAsync();
+    }
+
+    private async Task AddNewVagt()
+    {
+        await vagtService.CreateVagtAsync(vagtDto);
+        sBar.Add("Vagten er nu oprettet", Severity.Success);
+        naviM.NavigateTo("/vagter");
+    }
+
+    private void ReturnToAll()
+    {
+        naviM.NavigateTo("/vagter");
+    }
+}
